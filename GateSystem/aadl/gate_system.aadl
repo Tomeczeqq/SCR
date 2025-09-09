@@ -1,0 +1,68 @@
+-- Kompletny system
+package GateSystem
+public
+	with SEI;
+	with HardwarePlatform;
+	with Devices;
+	with Logic;
+
+	system GateSystem
+	end GateSystem;
+
+	system implementation GateSystem.impl
+		subcomponents
+			-- Sprzęt
+			main_bus: bus HardwarePlatform::HWBus.Impl;
+			main_processor: processor HardwarePlatform::MainProcessor.Impl;
+			
+			-- Urządzenia
+			remote_control: device Devices::RemoteControl;
+			control_panel: device Devices::ControlPanel;
+			motor: device Devices::Motor;
+			locking_mechanism: device Devices::LockingMechanism;
+			sensor: device Devices::Sensor;
+			camera: device Devices::Camera;
+			
+			-- Oprogramowanie
+			controller_process: process Logic::GateControllerProcess.impl;
+			safety_process: process Logic::SafetyProcess.impl;
+
+		connections
+			-- Wejścia komend od użytkownika do kontrolera
+			c1: port remote_control.command_out -> controller_process.remote_in;
+			c2: port control_panel.command_out -> controller_process.panel_in;
+			
+			-- Połączenie bezpieczeństwa
+			c3: port sensor.sensor_out -> safety_process.sensor_data_in;
+			c4: port camera.camera_out -> safety_process.camera_data_in;
+			c5: port safety_process.safety_status_out -> controller_process.safety_status_in;
+			
+			-- Wyjścia z kontrolera do urządzeń wykonawczych
+			c6: port controller_process.motor_command_out -> motor.command_in;
+			c7: port controller_process.locking_command_out -> locking_mechanism.lock_command_in;
+			
+			-- Połączenia magistrali
+			b1: bus access main_bus -> main_processor.bus_access;
+			b2: bus access main_bus -> remote_control.bus_access;
+			b3: bus access main_bus -> control_panel.bus_access;
+			b4: bus access main_bus -> motor.bus_access;
+			b5: bus access main_bus -> locking_mechanism.bus_access;
+			b6: bus access main_bus -> sensor.bus_access;
+			b7: bus access main_bus -> camera.bus_access;
+			--b8: bus access main_bus -> controller_process.bus_access;
+			--b9: bus access main_bus -> safety_process.bus_access;
+			
+		properties
+			-- Przypisanie procesów do procesora
+			Actual_Processor_Binding => (reference (main_processor)) applies to controller_process, safety_process;
+			Actual_Memory_Binding => (reference (main_processor.this_ram)) applies to controller_process, safety_process;
+			
+			-- Przypisanie połączeń do magistrali
+			Actual_Connection_Binding => (reference (main_bus)) applies to c1, c2, c3, c4, c5, c6, c7;
+			
+			-- Właściwości całego systemu
+			SEI::WeightLimit => 10.0 kg;
+			SEI::MIPSCapacity => 1000.0 mips;
+	end GateSystem.impl;
+
+end GateSystem;

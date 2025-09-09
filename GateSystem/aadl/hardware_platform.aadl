@@ -1,0 +1,38 @@
+-- Magistrala i procesor
+package HardwarePlatform
+public
+	with SEI;
+	
+	bus HWBus
+		properties
+			SEI::BandWidthCapacity => 100.0 MBytesps;
+			SEI::GrossWeight => 0.5 kg;
+	end HWBus;
+
+	bus implementation HWBus.Impl
+	end HWBus.Impl;
+
+	memory RAM
+		properties
+			SEI::GrossWeight => 0.1 kg;
+	end RAM;
+
+	memory implementation RAM.Impl
+	end RAM.Impl;
+
+	processor MainProcessor
+		features
+			bus_access: requires bus access HWBus.Impl;
+		properties
+			SEI::MIPSCapacity => 1000.0 MIPS;
+			SEI::GrossWeight => 0.2 kg;
+	end MainProcessor;
+
+	processor implementation MainProcessor.Impl
+		subcomponents
+			this_ram: memory RAM.Impl;
+		properties
+			Actual_Memory_Binding => (reference (this_ram));
+	end MainProcessor.Impl;
+
+end HardwarePlatform;

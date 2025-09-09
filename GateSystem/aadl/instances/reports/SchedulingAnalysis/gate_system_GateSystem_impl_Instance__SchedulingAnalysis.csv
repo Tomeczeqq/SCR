@@ -1,0 +1,12 @@
+Test scheduability Report
+
+Processor Utilization/Scheduling Results
+main_processor: Processor GateSystem_impl_Instance.main_processor is schedulable with utilization 0.0%
+
+Thread binding report
+thread controller_process.command_thread(0.000 MIPS) ==> processor main_processor(1000.0MIPS) Utilization 0.0%
+thread controller_process.state_thread(0.000 MIPS) ==> processor main_processor(1000.0MIPS) Utilization 0.0%
+thread controller_process.command_logic_thread(0.000 MIPS) ==> processor main_processor(1000.0MIPS) Utilization 0.0%
+thread safety_process.sensor_thread(0.000 MIPS) ==> processor main_processor(1000.0MIPS) Utilization 0.0%
+thread safety_process.camera_thread(0.000 MIPS) ==> processor main_processor(1000.0MIPS) Utilization 0.0%
+thread safety_process.safety_logic_thread(0.000 MIPS) ==> processor main_processor(1000.0MIPS) Utilization 0.0%

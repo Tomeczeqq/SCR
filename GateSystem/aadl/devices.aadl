@@ -1,0 +1,59 @@
+-- Urządzenia
+package Devices
+public
+	with SEI;
+	with HardwarePlatform;
+	with DataTypes;
+
+	-- Urządzenia wejścia
+	device RemoteControl
+		features
+			command_out: out data port DataTypes::Command;
+			bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+		properties
+			SEI::GrossWeight => 0.1 kg;
+	end RemoteControl;
+
+	device ControlPanel
+		features
+			command_out: out data port DataTypes::Command;
+			bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+		properties
+			SEI::GrossWeight => 0.2 kg;
+	end ControlPanel;
+
+	device Sensor
+		features
+			sensor_out: out data port DataTypes::SensorData;
+			bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+		properties
+			SEI::GrossWeight => 0.05 kg;
+	end Sensor;
+
+	device Camera
+		features
+			camera_out: out data port DataTypes::CameraData;
+			bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+		properties
+			SEI::GrossWeight => 0.3 kg;
+	end Camera;
+
+	-- Urządzenia wyjścia
+	device Motor
+		features
+			command_in: in data port DataTypes::Command;
+			gate_state_out: out data port DataTypes::GateState;
+			bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+		properties
+			SEI::GrossWeight => 3.0 kg;
+	end Motor;
+
+	device LockingMechanism
+		features
+			lock_command_in: in data port DataTypes::LockingCommand;
+			bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+		properties
+			SEI::GrossWeight => 1.5 kg;
+	end LockingMechanism;
+	
+end Devices;

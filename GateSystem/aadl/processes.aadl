@@ -1,0 +1,145 @@
+-- Logika działania
+package Logic
+public
+	with SEI;
+	with DataTypes;
+	--with HardwarePlatform;
+
+	-- Procesy
+	process GateControllerProcess
+		features
+			remote_in: in data port DataTypes::Command;
+			panel_in: in data port DataTypes::Command;
+			safety_status_in: in data port DataTypes::SafetyStatus;
+			motor_command_out: out data port DataTypes::Command;
+			locking_command_out: out data port DataTypes::LockingCommand;
+			--bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+			
+		properties
+			SEI::MIPSBudget => 10.0 mips;
+	end GateControllerProcess;
+
+	process implementation GateControllerProcess.impl
+		subcomponents
+			command_thread: thread CommandThread.impl;
+			state_thread: thread GateStateThread.impl;
+			command_logic_thread: thread CommandLogicThread.impl;
+
+		connections
+			c_remote: port remote_in -> command_logic_thread.remote_in;
+			c_panel: port panel_in -> command_logic_thread.panel_in;
+			c_combined: port command_logic_thread.combined_out -> command_thread.user_command_in;
+			c_motor_out: port command_thread.motor_command_out -> state_thread.motor_command_in;
+			c_safety_in: port safety_status_in -> command_thread.safety_status_in;
+			c_motor: port state_thread.motor_command_out -> motor_command_out;
+			c_locking: port state_thread.locking_command_out -> locking_command_out;
+	end GateControllerProcess.impl;
+
+	process SafetyProcess
+		features
+			sensor_data_in: in data port DataTypes::SensorData;
+			camera_data_in: in data port DataTypes::CameraData;
+			safety_status_out: out data port DataTypes::SafetyStatus;
+			--bus_access: requires bus access HardwarePlatform::HWBus.Impl;
+
+		properties
+			SEI::MIPSBudget => 5.0 mips;
+	end SafetyProcess;
+
+	process implementation SafetyProcess.impl
+		subcomponents
+			sensor_thread: thread SensorMonitorThread.impl;
+			camera_thread: thread CameraAnalysisThread.impl;
+			safety_logic_thread: thread SafetyLogicThread.impl;
+			
+		connections
+			c1: port sensor_data_in -> sensor_thread.sensor_data_in;
+			c2: port camera_data_in -> camera_thread.camera_data_in;
+			c3: port sensor_thread.safety_status_out -> safety_logic_thread.sensor_safety_in;
+        	c4: port camera_thread.safety_status_out -> safety_logic_thread.camera_safety_in;    
+	        c5: port safety_logic_thread.combined_safety_out -> safety_status_out;
+	end SafetyProcess.impl;
+
+	-- Wątki
+	thread CommandLogicThread
+		features
+			remote_in: in data port DataTypes::Command;
+			panel_in: in data port DataTypes::Command;
+			combined_out: out data port DataTypes::Command;
+		properties
+			SEI::MIPSBudget => 1.0 mips;
+			Dispatch_Protocol => Periodic;
+			Period => 10 ms;
+	end CommandLogicThread;
+
+	thread implementation CommandLogicThread.impl
+	end CommandLogicThread.impl;
+	
+	thread CommandThread
+		features
+			user_command_in: in data port DataTypes::Command;
+			safety_status_in: in data port DataTypes::SafetyStatus;
+			motor_command_out: out data port DataTypes::Command;
+		properties
+			SEI::MIPSBudget => 2.0 mips;
+			Dispatch_Protocol => Sporadic;
+	end CommandThread;
+
+	thread implementation CommandThread.impl
+	end CommandThread.impl;
+
+	thread GateStateThread
+		features
+			motor_command_in: in data port DataTypes::Command;
+			motor_command_out: out data port DataTypes::Command;
+			locking_command_out: out data port DataTypes::LockingCommand;
+		properties
+			SEI::MIPSBudget => 3.0 mips;
+			Dispatch_Protocol => Periodic;
+			Period => 20 ms;
+	end GateStateThread;
+
+	thread implementation GateStateThread.impl
+	end GateStateThread.impl;
+
+	thread SensorMonitorThread
+		features
+			sensor_data_in: in data port DataTypes::SensorData;
+			safety_status_out: out data port DataTypes::SafetyStatus;
+		properties
+			SEI::MIPSBudget => 1.0 mips;
+			Dispatch_Protocol => Periodic;
+			Period => 5 ms;			
+	end SensorMonitorThread;
+
+	thread implementation SensorMonitorThread.impl
+	end SensorMonitorThread.impl;
+
+	thread CameraAnalysisThread
+		features
+			camera_data_in: in data port DataTypes::CameraData;
+			safety_status_out: out data port DataTypes::SafetyStatus;
+		properties
+			SEI::MIPSBudget => 4.0 mips;
+			Dispatch_Protocol => Periodic;
+			Period => 50 ms;
+	end CameraAnalysisThread;
+
+	thread implementation CameraAnalysisThread.impl
+	end CameraAnalysisThread.impl;
+	
+	thread SafetyLogicThread
+		features
+			sensor_safety_in: in data port DataTypes::SafetyStatus;
+			camera_safety_in: in data port DataTypes::SafetyStatus;
+			combined_safety_out: out data port DataTypes::SafetyStatus;
+		properties
+			SEI::MIPSBudget => 1.0 mips;
+			Dispatch_Protocol => Periodic;
+			Period => 10 ms;
+	end SafetyLogicThread;
+
+	thread implementation SafetyLogicThread.impl
+	end SafetyLogicThread.impl;
+
+end Logic;

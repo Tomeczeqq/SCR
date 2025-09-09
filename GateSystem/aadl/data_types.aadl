@@ -1,0 +1,36 @@
+-- Typy danych do komunikacji
+package DataTypes
+public
+	with Data_Model;
+
+	data Command
+		properties
+			Data_Model::Enumerators => ("Open", "Close", "Stop");
+	end Command;
+
+	data GateState
+		properties
+			Data_Model::Enumerators => ("Closed", "Closing", "Open", "Opening", "Stopped", "Error");
+	end GateState;
+
+	data SensorData
+		properties
+			Data_Model::Enumerators => ("Clear", "Obstacle_Detected");
+	end SensorData;
+
+	data CameraData
+		properties
+			Data_Model::Enumerators => ("Image_Available", "No_Image");
+	end CameraData;
+
+	data SafetyStatus
+		properties
+			Data_Model::Enumerators => ("Safe", "Obstacle_Near", "Malfunction");
+	end SafetyStatus;
+	
+	data LockingCommand
+		properties
+			Data_Model::Enumerators => ("Lock", "Unlock");
+	end LockingCommand;
+	
+end DataTypes;
